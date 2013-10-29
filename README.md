@@ -4,7 +4,7 @@ bearded-bear
 A stub OpenFrameworks + Leap Motion application on Ubuntu
 
 Setup
--------
+--
 
 # Register as a [Leap Motion dev](https://developer.leapmotion.com/) and download the latest SDK
 # Open the header file LeapMath.h and replace the preprocessor directives PI, DEG_TO_RAD, RAD_TO_DEG  with these:
