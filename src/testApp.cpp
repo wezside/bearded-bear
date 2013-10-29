@@ -6,7 +6,7 @@ void testApp::setup()
     ofSetVerticalSync(true);
     ofSetLogLevel(OF_LOG_VERBOSE);	
 
-     controller.addListener(listener);
+    controller.addListener(listener);
 }
 void testApp::update()
 {
@@ -16,7 +16,6 @@ void testApp::draw()
     ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30),  OF_GRADIENT_BAR);
 
     camera.begin();
-        
     camera.end();
 }
 void testApp::keyPressed(int key){}
