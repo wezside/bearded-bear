@@ -85,8 +85,8 @@ void SampleListener::onFrame(const Controller& controller)
         }
 
         // Get the hand's sphere radius and palm position
-        std::cout 	<< "Hand sphere radius: " << hand.sphereRadius()
-                    << " mm, palm position: "  << hand.palmPosition() << std::endl;
+        std::cout << "Hand sphere radius: " << hand.sphereRadius()
+                            << " mm, palm position: "  << hand.palmPosition() << std::endl;
 
         // Get the hand's normal vector and direction
         const Vector normal = hand.palmNormal();
@@ -126,21 +126,21 @@ void SampleListener::onFrame(const Controller& controller)
                     CircleGesture previousUpdate = CircleGesture(controller.frame(1).gesture(circle.id()));
                     sweptAngle = (circle.progress() - previousUpdate.progress()) * 2 * PI;
                 }
-                std::cout 	<< "Circle id: " << gesture.id()
-                            << ", state: " << gesture.state()
-                            << ", progress: " << circle.progress()
-                            << ", radius: " << circle.radius()
-                            << ", angle " << sweptAngle * RAD_TO_DEG
-                            <<  ", " << clockwiseness << std::endl;
+                std::cout << "Circle id: " << gesture.id()
+                                    << ", state: " << gesture.state()
+                                    << ", progress: " << circle.progress()
+                                    << ", radius: " << circle.radius()
+                                    << ", angle " << sweptAngle * RAD_TO_DEG
+                                    <<  ", " << clockwiseness << std::endl;
                 break;
             }
             case Gesture::TYPE_SWIPE:
             {
                 SwipeGesture swipe = gesture;
-                std::cout 	<< "Swipe id: "<< gesture.id()
-                                  << ", state: " << gesture.state()
-                                  << ", direction: "<< swipe.direction()
-                                  << ", speed: " << swipe.speed() << std::endl;
+                std::cout << "Swipe id: "<< gesture.id()
+                                << ", state: " << gesture.state()
+                                << ", direction: "<< swipe.direction()
+                                << ", speed: " << swipe.speed() << std::endl;
                 break;
             }
             case Gesture::TYPE_KEY_TAP:
