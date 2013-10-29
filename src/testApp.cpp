@@ -16,7 +16,7 @@ void testApp::draw()
 	ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30),  OF_GRADIENT_BAR);
 
 	camera.begin();
-		ofCircle()
+		
 	camera.end();
 }
 void testApp::keyPressed(int key){}
