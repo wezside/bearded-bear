@@ -1,0 +1,8 @@
+A simple stub application for OpenFrameworks and the Leap Motion SDK
+
+Setup
+====
+
+- Register as a Leap Motion dev and download the latest SDK
+- Generate a new OF project using the project generator
+- 
