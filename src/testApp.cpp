@@ -1,22 +1,101 @@
 #include "testApp.h"
 
+void testApp::exit()
+{
+    controller.removeListener(listener);
+}
 void testApp::setup()
 {
-    ofSetFrameRate(60);
     ofSetVerticalSync(true);
-    ofSetLogLevel(OF_LOG_VERBOSE);	
+    ofSetFrameRate(60);
+    ofEnableSmoothing();
+    ofDisableArbTex();
+    ofBackground(0);
+    ofSetLogLevel(OF_LOG_VERBOSE);
 
     controller.addListener(listener);
+    if(ofIsGLProgrammableRenderer()) shader.load("leap");
 }
 void testApp::update()
 {
 }
 void testApp::draw()
 {
-    ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30),  OF_GRADIENT_BAR);
+    ofEnableSmoothing();
+    ofEnableBlendMode(OF_BLENDMODE_ADD);
 
+    ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30),  OF_GRADIENT_BAR);
     camera.begin();
+    ofTranslate(0, 0, -500);
+    ofScale(1, -1, 1);
+
+    ofVec3f origin = ofVec3f(0.0);
+    ofVec3f distance = origin - listener.hand_pos;
+    ofLog(OF_LOG_NOTICE, "%f", distance.length());
+    
+    float rotate_x = 0.0;
+    float rotate_z = 0.0;
+    std::string hand_pos_str = "";
+    
+    ofColor status;
+    status.r = 0;
+    status.g = 255;
+    status.b = 0;
+
+    if (distance.length() == 0 || distance.length() > 200.0)
+    {
+        status.r = 255;
+        status.g = 0;
+        status.b = 0;
+        hand_pos_str = "Move your hand closer";
+    }
+    else
+    {
+        hand_pos_str = "Perfect";
+        rotate_x = listener.hand_pitch * RAD_TO_DEG + 90.0;
+        rotate_z = listener.hand_roll * RAD_TO_DEG * -1;
+    }	
+    // Draw hand status
+    ofSetColor(status); 		
+    ofCircle(10, 10, 20);
+    ofDrawBitmapString(hand_pos_str, 10,100);
+
+    shader.begin();
+    ofPushMatrix();
+    ofRotateX(rotate_x);
+    ofRectangle rect_pitch;
+    rect_pitch.x = -5;
+    rect_pitch.y = -100;
+    rect_pitch.width = 10;
+    rect_pitch.height = 200;
+    ofRect(rect_pitch);
+    ofPopMatrix();
+
+    ofPushMatrix();
+    ofRotateZ(rotate_z);
+    ofRectangle rect_roll;
+    rect_roll.x = -100;
+    rect_roll.y = -5;
+    rect_roll.width = 200;
+    rect_roll.height = 10;
+    ofRect(rect_roll);
+    ofPopMatrix();
+
+    float newheight = ofClamp(ofMap(listener.hand_pos.y, 35.0, 300.0, 0.0, 200.0), 0.0, 250.0);
+    ofPushMatrix();
+    ofRectangle rect_throttle;
+    rect_throttle.x = -200;
+    rect_throttle.y = -newheight;
+    rect_throttle.width = 50;
+    rect_throttle.height = newheight;
+    ofRect(rect_throttle);
+    ofPopMatrix();
+
+    shader.end();
     camera.end();
+    ofDisableBlendMode();
+    ofDisableSmoothing();
+    ofSetWindowTitle(ofToString(ofGetFrameRate(), 2)+"fps");
 }
 void testApp::keyPressed(int key){}
 void testApp::keyReleased(int key){}
@@ -28,12 +107,13 @@ void testApp::windowResized(int w, int h){}
 void testApp::gotMessage(ofMessage msg){}
 void testApp::dragEvent(ofDragInfo dragInfo){}
 
-//--------------------------------------------------------------
-void SampleListener::onInit(const Controller& controller) 
+ 
+// --------------  LeapListener  --------------------------------
+void LeapListener::onInit(const Controller& controller) 
 {
     std::cout << "Initialized" << std::endl;
 }
-void SampleListener::onConnect(const Controller& controller) 
+void LeapListener::onConnect(const Controller& controller) 
 {
     std::cout << "Connected" << std::endl;
     controller.enableGesture(Gesture::TYPE_CIRCLE);
@@ -41,19 +121,50 @@ void SampleListener::onConnect(const Controller& controller)
     controller.enableGesture(Gesture::TYPE_SCREEN_TAP);
     controller.enableGesture(Gesture::TYPE_SWIPE);
 }
-
-void SampleListener::onDisconnect(const Controller& controller) 
+void LeapListener::onDisconnect(const Controller& controller) 
 {
     //Note: not dispatched when running in a debugger.
     std::cout << "Disconnected" << std::endl;
 }
-
-void SampleListener::onExit(const Controller& controller) 
+void LeapListener::onExit(const Controller& controller) 
 {
     std::cout << "Exited" << std::endl;
 }
+void LeapListener::onFrame(const Controller& controller) 
+{
+    const Frame frame = controller.frame();
+    // if (frame.hands().count() == 0 || frame.hands().empty()) return;
 
-void SampleListener::onFrame(const Controller& controller) 
+/*	std::cout << "Frame id: " << frame.id()
+            << ", timestamp: " << frame.timestamp()
+            << ", hands: " << frame.hands().count()
+            << ", fingers: " << frame.fingers().count()
+            << ", tools: " << frame.tools().count()
+            << ", gestures: " << frame.gestures().count() << std::endl;*/
+
+    // Get the first hand
+    const Hand hand = frame.hands()[0];
+
+    // Get the hand's normal vector and direction
+    const Vector normal = hand.palmNormal();
+    const Vector direction = hand.direction();
+
+    // Get the hand's sphere radius and palm position
+    // std::cout << "Hand sphere radius: " << hand.sphereRadius()
+    //   		  << " mm, palm position: "  << hand.palmPosition() << std::endl;
+
+    // Calculate the hand's pitch, roll, and yaw angles
+/*	std::cout << "Hand pitch: " << direction.pitch() * RAD_TO_DEG 	<< " degrees, "
+              << "roll: " << normal.roll() * RAD_TO_DEG << " degrees, "
+              << "yaw: " << direction.yaw() * RAD_TO_DEG << " degrees" << std::endl;	*/
+
+    hand_pitch = direction.pitch();
+    hand_roll = normal.roll();
+    hand_yaw = direction.yaw();
+    hand_pos = ofVec3f(hand.palmPosition().x, hand.palmPosition().y, hand.palmPosition().z);
+}
+
+/*void LeapListener::onFrame(const Controller& controller) 
 {
     // Get the most recent frame and report some basic information
     const Frame frame = controller.frame();
@@ -171,14 +282,14 @@ void SampleListener::onFrame(const Controller& controller)
     {
         std::cout << std::endl;
     }
-}
+}*/
 
-void SampleListener::onFocusGained(const Controller& controller) 
+void LeapListener::onFocusGained(const Controller& controller) 
 {
     std::cout << "Focus Gained" << std::endl;
 }
 
-void SampleListener::onFocusLost(const Controller& controller) 
+void LeapListener::onFocusLost(const Controller& controller) 
 {
     std::cout << "Focus Lost" << std::endl;
 }

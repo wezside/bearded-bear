@@ -5,7 +5,7 @@
 
 using namespace Leap;
 
-class SampleListener : public Listener 
+class LeapListener : public Listener 
 {
 	public:
 		virtual void onInit(const Controller&);
@@ -15,19 +15,25 @@ class SampleListener : public Listener
 		virtual void onFrame(const Controller&);
 		virtual void onFocusGained(const Controller&);
 		virtual void onFocusLost(const Controller&);
+
+		ofVec3f hand_pos;
+		float hand_pitch, hand_roll, hand_yaw;
 };
 
 class testApp : public ofBaseApp
 {
 	private:
 		Controller controller;
-		SampleListener listener;
+		LeapListener listener;
 		ofCamera camera;
+		ofShader shader;
+
 
 	public:
 		void setup();
 		void update();
 		void draw();
+		void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
