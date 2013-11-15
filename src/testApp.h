@@ -26,8 +26,10 @@ class testApp : public ofBaseApp
 		Controller controller;
 		LeapListener listener;
 		ofCamera camera;
+		ofImage logo;
 		ofShader shader;
-
+		float rotate_x;
+		float rotate_z;
 
 	public:
 		void setup();

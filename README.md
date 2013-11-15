@@ -3,6 +3,13 @@ bearded-bear
 
 A stub OpenFrameworks + Leap Motion application on Ubuntu
 
+Notes
+--
+
+### Hand Position
+
+Hand position is quite crucial in getting accurate data. A hand that isn't entirely over the sensor will sometimes produce random extreme values for reading the palm position. 
+
 Setup
 --
 

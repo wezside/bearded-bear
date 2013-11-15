@@ -1,4 +1,4 @@
-#include "testApp.h"
+    #include "testApp.h"
 
 void testApp::exit()
 {
@@ -13,6 +13,9 @@ void testApp::setup()
     ofBackground(0);
     ofSetLogLevel(OF_LOG_VERBOSE);
 
+    camera.setFov(20);
+    logo.loadImage(ofToDataPath("g3860.png"));
+
     controller.addListener(listener);
     if(ofIsGLProgrammableRenderer()) shader.load("leap");
 }
@@ -24,74 +27,105 @@ void testApp::draw()
     ofEnableSmoothing();
     ofEnableBlendMode(OF_BLENDMODE_ADD);
 
-    ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30),  OF_GRADIENT_BAR);
+    ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30), OF_GRADIENT_LINEAR);
     camera.begin();
-    ofTranslate(0, 0, -500);
+
+
+    ofTranslate(0, 0, -1500);
     ofScale(1, -1, 1);
+
+    ofPushMatrix();
+    ofScale(1, -1, 1);
+    ofTranslate(-logo.getWidth()* 0.5 + ofGetWidth(), ofGetHeight() - logo.getHeight(), -2000);
+    ofSetColor(132);
+    logo.draw(0, 0);
+    ofPopMatrix();
 
     ofVec3f origin = ofVec3f(0.0);
     ofVec3f distance = origin - listener.hand_pos;
-    ofLog(OF_LOG_NOTICE, "%f", distance.length());
+
+    float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
     
-    float rotate_x = 0.0;
-    float rotate_z = 0.0;
     std::string hand_pos_str = "";
     
     ofColor status;
-    status.r = 0;
-    status.g = 255;
-    status.b = 0;
+    status.r = 227;
+    status.g = 7;
+    status.b = 77;
 
-    if (distance.length() == 0 || distance.length() > 200.0)
-    {
-        status.r = 255;
-        status.g = 0;
-        status.b = 0;
-        hand_pos_str = "Move your hand closer";
-    }
+    ofLog(OF_LOG_NOTICE, "%f", listener.hand_pos.z);
+    if (distance.length() == 0)
+    {		
+        hand_pos_str = "Player lost";	
+        status.r = 132;
+        status.g = 132;
+        status.b = 132;
+    }	
     else
     {
-        hand_pos_str = "Perfect";
-        rotate_x = listener.hand_pitch * RAD_TO_DEG + 90.0;
+        hand_pos_str = "Tracking player";
+        rotate_x = listener.hand_pitch * RAD_TO_DEG * -1 + 90.0;
         rotate_z = listener.hand_roll * RAD_TO_DEG * -1;
-    }	
+    }
+
     // Draw hand status
     ofSetColor(status); 		
-    ofCircle(10, 10, 20);
-    ofDrawBitmapString(hand_pos_str, 10,100);
+    ofCircle(0, 215, 10);
+    float xpos = hand_pos_str.compare("Tracking player") == 0 ? -50 : -30;
+    ofDrawBitmapString(hand_pos_str, xpos, 240);
 
-    shader.begin();
+    // shader.begin();
+
+    ofSetColor(241, 113, 154, 100);
     ofPushMatrix();
+    ofTranslate(0, -newheight + 200.0, 0);
     ofRotateX(rotate_x);
+    ofRotateY(rotate_z);
+    ofNoFill();
+    ofTriangle(-100, 100, 0, 100, 100, 0, 0, -100, 0);
+    ofFill();
     ofRectangle rect_pitch;
     rect_pitch.x = -5;
-    rect_pitch.y = -100;
+    rect_pitch.y = -90;
     rect_pitch.width = 10;
-    rect_pitch.height = 200;
+    rect_pitch.height = 190;
     ofRect(rect_pitch);
     ofPopMatrix();
 
+    
+    ofSetColor(241, 113, 154, 100);
     ofPushMatrix();
+    ofTranslate(-ofGetWidth() * 0.5 + 100.0, -220.0, 0);
     ofRotateZ(rotate_z);
+    ofNoFill();
+    ofCircle(0, 0, 0, 20.0);
+    ofFill();
     ofRectangle rect_roll;
-    rect_roll.x = -100;
-    rect_roll.y = -5;
-    rect_roll.width = 200;
-    rect_roll.height = 10;
+    rect_roll.x = -20;
+    rect_roll.y = 0;
+    rect_roll.width = 40;
+    rect_roll.height = 2;
+    ofRect(rect_roll);
+
+    rect_roll.x = 0;
+    rect_roll.y = -20;
+    rect_roll.width = 2;
+    rect_roll.height = 40;	
     ofRect(rect_roll);
     ofPopMatrix();
 
-    float newheight = ofClamp(ofMap(listener.hand_pos.y, 35.0, 300.0, 0.0, 200.0), 0.0, 250.0);
+    // float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
+/*	ofTranslate(0, 0, -500);
     ofPushMatrix();
     ofRectangle rect_throttle;
     rect_throttle.x = -200;
-    rect_throttle.y = -newheight;
-    rect_throttle.width = 50;
+    rect_throttle.y = -newheight + 100.0;
+    rect_throttle.width = 30;
     rect_throttle.height = newheight;
     ofRect(rect_throttle);
-    ofPopMatrix();
+    ofPopMatrix();*/
 
-    shader.end();
+    // shader.end();
     camera.end();
     ofDisableBlendMode();
     ofDisableSmoothing();
