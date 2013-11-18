@@ -118,6 +118,17 @@ void testApp::draw()
     ofRect(rect_roll);
     ofPopMatrix();
 
+    // float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
+/*	ofTranslate(0, 0, -500);
+    ofPushMatrix();
+    ofRectangle rect_throttle;
+    rect_throttle.x = -200;
+    rect_throttle.y = -newheight + 100.0;
+    rect_throttle.width = 30;
+    rect_throttle.height = newheight;
+    ofRect(rect_throttle);
+    ofPopMatrix();*/
+
     // shader.end();
     camera.end();
     ofDisableBlendMode();

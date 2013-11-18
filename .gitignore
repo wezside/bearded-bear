@@ -5,8 +5,5 @@ obj/
 bin/leapmotion
 bin/data/frames/
 bin/libs
-Makefile
-addons.make
-config.make
 *.cbp
 *.workspace
