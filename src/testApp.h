@@ -28,15 +28,16 @@ class testApp : public ofBaseApp
 		ofCamera camera;
 		ofImage logo;
 		ofShader shader;
+		ofTrueTypeFont unibody;
+
 		float rotate_x;
 		float rotate_z;
 
 	public:
+		void exit();
 		void setup();
 		void update();
 		void draw();
-		void exit();
-
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );

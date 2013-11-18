@@ -1,7 +1,8 @@
-    #include "testApp.h"
+#include "testApp.h"
 
 void testApp::exit()
 {
+    ofLog(OF_LOG_NOTICE, "%s", "Exiting OF app.");
     controller.removeListener(listener);
 }
 void testApp::setup()
@@ -15,6 +16,8 @@ void testApp::setup()
 
     camera.setFov(20);
     logo.loadImage(ofToDataPath("g3860.png"));
+
+    unibody.loadFont("Unibody8Pro-Bold.otf", 14, true, true);	
 
     controller.addListener(listener);
     if(ofIsGLProgrammableRenderer()) shader.load("leap");
@@ -30,12 +33,10 @@ void testApp::draw()
     ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30), OF_GRADIENT_LINEAR);
     camera.begin();
 
-
     ofTranslate(0, 0, -1500);
     ofScale(1, -1, 1);
 
     ofPushMatrix();
-    ofScale(1, -1, 1);
     ofTranslate(-logo.getWidth()* 0.5 + ofGetWidth(), ofGetHeight() - logo.getHeight(), -2000);
     ofSetColor(132);
     logo.draw(0, 0);
@@ -74,8 +75,13 @@ void testApp::draw()
     float xpos = hand_pos_str.compare("Tracking player") == 0 ? -50 : -30;
     ofDrawBitmapString(hand_pos_str, xpos, 240);
 
-    // shader.begin();
+    ofSetColor(245, 58, 135);
+    ofPushMatrix();
+    ofScale(1, -1, 1);
+    unibody.drawString(hand_pos_str, 155, 92);	
+    ofPopMatrix();
 
+    // shader.begin();
     ofSetColor(241, 113, 154, 100);
     ofPushMatrix();
     ofTranslate(0, -newheight + 200.0, 0);
@@ -91,14 +97,15 @@ void testApp::draw()
     rect_pitch.height = 190;
     ofRect(rect_pitch);
     ofPopMatrix();
-
     
-    ofSetColor(241, 113, 154, 100);
     ofPushMatrix();
     ofTranslate(-ofGetWidth() * 0.5 + 100.0, -220.0, 0);
     ofRotateZ(rotate_z);
+
     ofNoFill();
+    ofSetColor(241, 113, 154, 200);
     ofCircle(0, 0, 0, 20.0);
+
     ofFill();
     ofRectangle rect_roll;
     rect_roll.x = -20;
@@ -106,30 +113,16 @@ void testApp::draw()
     rect_roll.width = 40;
     rect_roll.height = 2;
     ofRect(rect_roll);
-
-    rect_roll.x = 0;
-    rect_roll.y = -20;
-    rect_roll.width = 2;
-    rect_roll.height = 40;	
+    ofNoFill();
+    ofSetColor(241, 113, 154, 250);
     ofRect(rect_roll);
     ofPopMatrix();
-
-    // float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
-/*	ofTranslate(0, 0, -500);
-    ofPushMatrix();
-    ofRectangle rect_throttle;
-    rect_throttle.x = -200;
-    rect_throttle.y = -newheight + 100.0;
-    rect_throttle.width = 30;
-    rect_throttle.height = newheight;
-    ofRect(rect_throttle);
-    ofPopMatrix();*/
 
     // shader.end();
     camera.end();
     ofDisableBlendMode();
     ofDisableSmoothing();
-    ofSetWindowTitle(ofToString(ofGetFrameRate(), 2)+"fps");
+    ofSetWindowTitle(ofToString(ofGetFrameRate(), 2) + "fps");
 }
 void testApp::keyPressed(int key){}
 void testApp::keyReleased(int key){}
@@ -142,7 +135,7 @@ void testApp::gotMessage(ofMessage msg){}
 void testApp::dragEvent(ofDragInfo dragInfo){}
 
  
-// --------------  LeapListener  --------------------------------
+// --------------  LeapListener  ----------------------
 void LeapListener::onInit(const Controller& controller) 
 {
     std::cout << "Initialized" << std::endl;
