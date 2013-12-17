@@ -46,4 +46,5 @@ static const float RAD_TO_DEG  = 57.295779513f;
 		USER_LIBS = -lLeap
 		USER_LDFLAGS = -L./libs
 
+- Update PROJECT_CFLAGS to point to the Leap SDK include folder
 - Make/Compile and run application

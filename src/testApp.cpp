@@ -14,6 +14,7 @@ void testApp::setup()
     ofBackground(0);
     ofSetLogLevel(OF_LOG_VERBOSE);
 
+    m_bfullscreen = 0;
     camera.setFov(20);
     logo.loadImage(ofToDataPath("g3860.png"));
 
@@ -34,14 +35,15 @@ void testApp::draw()
     camera.begin();
 
     ofTranslate(0, 0, -1500);
-    ofScale(1, -1, 1);
 
     ofPushMatrix();
+    // ofScale(1, -1, 1);
     ofTranslate(-logo.getWidth()* 0.5 + ofGetWidth(), ofGetHeight() - logo.getHeight(), -2000);
     ofSetColor(132);
     logo.draw(0, 0);
     ofPopMatrix();
 
+    ofScale(1, -1, 1);
     ofVec3f origin = ofVec3f(0.0);
     ofVec3f distance = origin - listener.hand_pos;
 
@@ -72,13 +74,11 @@ void testApp::draw()
     // Draw hand status
     ofSetColor(status); 		
     ofCircle(0, 215, 10);
-    float xpos = hand_pos_str.compare("Tracking player") == 0 ? -50 : -30;
-    ofDrawBitmapString(hand_pos_str, xpos, 240);
-
+    float xpos = hand_pos_str.compare("Tracking player") == 0 ? -100 : -80;
     ofSetColor(245, 58, 135);
     ofPushMatrix();
     ofScale(1, -1, 1);
-    unibody.drawString(hand_pos_str, 155, 92);	
+    unibody.drawString(hand_pos_str, xpos, -250);	
     ofPopMatrix();
 
     // shader.begin();
@@ -99,9 +99,9 @@ void testApp::draw()
     ofPopMatrix();
     
     ofPushMatrix();
-    ofTranslate(-ofGetWidth() * 0.5 + 100.0, -220.0, 0);
-    ofRotateZ(rotate_z);
+    ofTranslate(-ofGetWidth() * 0.5 + 110.0, -220.0, 0);
 
+    ofRotateZ(rotate_z);
     ofNoFill();
     ofSetColor(241, 113, 154, 200);
     ofCircle(0, 0, 0, 20.0);
@@ -118,16 +118,9 @@ void testApp::draw()
     ofRect(rect_roll);
     ofPopMatrix();
 
-    // float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
-/*	ofTranslate(0, 0, -500);
-    ofPushMatrix();
-    ofRectangle rect_throttle;
-    rect_throttle.x = -200;
-    rect_throttle.y = -newheight + 100.0;
-    rect_throttle.width = 30;
-    rect_throttle.height = newheight;
-    ofRect(rect_throttle);
-    ofPopMatrix();*/
+    float throttle = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 300.0);
+    setThrottle();
+    setThrottle((int)throttle % 20);
 
     // shader.end();
     camera.end();
@@ -135,8 +128,36 @@ void testApp::draw()
     ofDisableSmoothing();
     ofSetWindowTitle(ofToString(ofGetFrameRate(), 2) + "fps");
 }
+void testApp::setThrottle(int index)
+{
+    int max = index == -1 ? 20 : index;
+    ofFill();
+    float yoffset = 230;	
+    for (int i = 0; i < max; ++i)
+    {
+        ofPushMatrix();
+        ofColor c = index == -1 ? ofColor(22, 22, 22) : ofColor(241, 113, 154, 255);
+        ofSetColor(c);
+        ofTranslate(-560, yoffset, 0);
+        ofRectangle rect;
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = 50;
+        rect.height = 10;
+        ofRect(rect);	
+        yoffset -= 15;	
+        ofPopMatrix();
+    }
+}
 void testApp::keyPressed(int key){}
-void testApp::keyReleased(int key){}
+void testApp::keyReleased(int key)
+{
+    switch (key)
+    {
+        case 'F':
+        case 'f': m_bfullscreen = !m_bfullscreen; ofSetFullscreen(m_bfullscreen); break;
+    }
+}
 void testApp::mouseMoved(int x, int y ){}
 void testApp::mouseDragged(int x, int y, int button){}
 void testApp::mousePressed(int x, int y, int button){}

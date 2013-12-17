@@ -33,6 +33,8 @@ class testApp : public ofBaseApp
 		float rotate_x;
 		float rotate_z;
 
+		bool m_bfullscreen;
+
 	public:
 		void exit();
 		void setup();
@@ -47,4 +49,5 @@ class testApp : public ofBaseApp
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+		void setThrottle(int index = -1);
 };
