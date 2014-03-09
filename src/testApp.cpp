@@ -9,13 +9,12 @@ void testApp::setup()
 {
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
-    ofEnableSmoothing();
+
     ofDisableArbTex();
     ofBackground(0);
     ofSetLogLevel(OF_LOG_VERBOSE);
 
-    m_bfullscreen = 0;
-    camera.setFov(20);
+    // camera.setFov(20);
     logo.loadImage(ofToDataPath("g3860.png"));
 
     unibody.loadFont("Unibody8Pro-Bold.otf", 14, true, true);	
@@ -28,17 +27,18 @@ void testApp::update()
 }
 void testApp::draw()
 {
-    ofEnableSmoothing();
+    ofEnableAntiAliasing();
     ofEnableBlendMode(OF_BLENDMODE_ADD);
 
     ofBackgroundGradient(ofColor(90, 90, 90), ofColor(30, 30, 30), OF_GRADIENT_LINEAR);
     camera.begin();
 
-    ofTranslate(0, 0, -1500);
+    // Translate camera 
+    ofTranslate(0, 0, -500);
 
+    // Draw Logo 
     ofPushMatrix();
-    // ofScale(1, -1, 1);
-    ofTranslate(-logo.getWidth()* 0.5 + ofGetWidth(), ofGetHeight() - logo.getHeight(), -2000);
+    ofTranslate(-logo.getWidth()* 0.5 + ofGetWidth(), ofGetHeight() - logo.getHeight(), -600);
     ofSetColor(132);
     logo.draw(0, 0);
     ofPopMatrix();
@@ -47,8 +47,6 @@ void testApp::draw()
     ofVec3f origin = ofVec3f(0.0);
     ofVec3f distance = origin - listener.hand_pos;
 
-    float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 200.0);
-    
     std::string hand_pos_str = "";
     
     ofColor status;
@@ -56,38 +54,44 @@ void testApp::draw()
     status.g = 7;
     status.b = 77;
 
-    ofLog(OF_LOG_NOTICE, "%f", listener.hand_pos.z);
+    // ofLog(OF_LOG_NOTICE, "%f", listener.hand_pos.z);
     if (distance.length() == 0)
     {		
-        hand_pos_str = "Player lost";	
+        hand_pos_str = "Hand lost";	
         status.r = 132;
         status.g = 132;
         status.b = 132;
+        rotate_x = -70.0;
+        rotate_z = 0.0;
     }	
     else
     {
-        hand_pos_str = "Tracking player";
+        status.r = 245;
+        status.g = 58;
+        status.b = 135;
+        hand_pos_str = "Tracking";
         rotate_x = listener.hand_pitch * RAD_TO_DEG * -1 + 90.0;
         rotate_z = listener.hand_roll * RAD_TO_DEG * -1;
     }
 
     // Draw hand status
-    ofSetColor(status); 		
-    ofCircle(0, 215, 10);
-    float xpos = hand_pos_str.compare("Tracking player") == 0 ? -100 : -80;
-    ofSetColor(245, 58, 135);
+    ofRectangle player_rect = unibody.getStringBoundingBox(hand_pos_str, 0, 0);
+    ofSetColor(status);
     ofPushMatrix();
     ofScale(1, -1, 1);
-    unibody.drawString(hand_pos_str, xpos, -250);	
+    ofLog(OF_LOG_NOTICE, "%f", unibody.getLineHeight());
+    unibody.drawString(hand_pos_str, -player_rect.width * 0.5, ofGetHeight() * 0.5 - unibody.getLineHeight() * 2 - 20);	
     ofPopMatrix();
 
-    // shader.begin();
+    // The height from Leap mapped to value usable on screen
+    float newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 250.0);
+
+    // Draw the craft
     ofSetColor(241, 113, 154, 100);
     ofPushMatrix();
     ofTranslate(0, -newheight + 200.0, 0);
     ofRotateX(rotate_x);
     ofRotateY(rotate_z);
-    ofNoFill();
     ofTriangle(-100, 100, 0, 100, 100, 0, 0, -100, 0);
     ofFill();
     ofRectangle rect_pitch;
@@ -98,39 +102,80 @@ void testApp::draw()
     ofRect(rect_pitch);
     ofPopMatrix();
     
+    // Roll
     ofPushMatrix();
-    ofTranslate(-ofGetWidth() * 0.5 + 110.0, -220.0, 0);
-
+    ofSetLineWidth(5);
+    ofSetCircleResolution(100);
+    ofTranslate(ofGetWidth() * 0.5 - 200.0, ofGetHeight() * 0.5 - 150.0, 0);
     ofRotateZ(rotate_z);
     ofNoFill();
     ofSetColor(241, 113, 154, 200);
-    ofCircle(0, 0, 0, 20.0);
+    ofCircle(0, 0, 0, 100.0);
 
-    ofFill();
-    ofRectangle rect_roll;
-    rect_roll.x = -20;
-    rect_roll.y = 0;
-    rect_roll.width = 40;
-    rect_roll.height = 2;
-    ofRect(rect_roll);
-    ofNoFill();
-    ofSetColor(241, 113, 154, 250);
-    ofRect(rect_roll);
+    ofPushMatrix();
+    ofScale(1, -1, 1);
+    ofRectangle rotate_rect = unibody.getStringBoundingBox(hand_pos_str, 0, 0);
+    unibody.drawString(ofToString(rotate_z), -rotate_rect.width * 0.5, 0);	
     ofPopMatrix();
 
-    float throttle = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 300.0);
-    setThrottle();
-    setThrottle((int)throttle % 20);
+    ofSetColor(255.0);
+    float centerx = 0.0;
+    float centery = 0.0;
+    ofSetLineWidth(1);
+    for (int i = 0; i < 50; ++i)
+    {
+        float inner_radius = 80;
+        float outer_radius = 95;
+        float x1 = inner_radius * cos(i) + centerx;
+        float y1 = inner_radius * sin(i) + centery;
+        float x2 = outer_radius * cos(i) + centerx;
+        float y2 = outer_radius * sin(i) + centery;
+        ofLine(x1, y1, x2, y2);
+    }
+
+    ofSetColor(155.0);
+    ofSetLineWidth(1);
+    for (float i = 0; i < 50; i+=0.5)
+    {
+        float inner_radius = 90;
+        float outer_radius = 95;
+        float x1 = inner_radius * cos(i) + centerx;
+        float y1 = inner_radius * sin(i) + centery;
+        float x2 = outer_radius * cos(i) + centerx;
+        float y2 = outer_radius * sin(i) + centery;
+        ofLine(x1, y1, x2, y2);
+    }	
+
+/*	ofFill();
+    ofRectangle rect_roll;
+    rect_roll.x = -100;
+    rect_roll.y = 0;
+    rect_roll.width = 200;
+    rect_roll.height = 2;
+    ofRect(rect_roll);
+    ofSetColor(241, 113, 154, 250);
+    ofRect(rect_roll);*/
+    ofPopMatrix();
+
+    float throttle = ofMap(listener.hand_pos.y, 30, 500, 0, 500);
+    ofLog(OF_LOG_NOTICE, "%f, %f, %d", listener.hand_pos.y, throttle, (int)throttle / 15);
+
+    // Draw throttle increments
+    drawThrottle();
+
+    // Draw actual throttle values
+    drawThrottle((int)throttle / 15);
 
     // shader.end();
     camera.end();
     ofDisableBlendMode();
-    ofDisableSmoothing();
+    ofDisableAntiAliasing();
     ofSetWindowTitle(ofToString(ofGetFrameRate(), 2) + "fps");
 }
-void testApp::setThrottle(int index)
+void testApp::drawThrottle(int index)
 {
-    int max = index == -1 ? 20 : index;
+    int max = index == -1 ? 30 : index;
+    if (max > 30) max = 30;
     ofFill();
     float yoffset = 230;	
     for (int i = 0; i < max; ++i)
@@ -155,7 +200,7 @@ void testApp::keyReleased(int key)
     switch (key)
     {
         case 'F':
-        case 'f': m_bfullscreen = !m_bfullscreen; ofSetFullscreen(m_bfullscreen); break;
+        case 'f': ofToggleFullscreen(); break;
     }
 }
 void testApp::mouseMoved(int x, int y ){}

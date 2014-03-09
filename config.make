@@ -8,7 +8,7 @@
 #   The location of your root openFrameworks installation
 #       (default) OF_ROOT = ../../../../Packages/openFrameworks 
 ################################################################################
-OF_ROOT = /home/wezside/Packages/openFrameworks
+OF_ROOT = ../../../packages/openFrameworks
 
 ################################################################################
 # PROJECT ROOT
@@ -106,7 +106,7 @@ USER_LDFLAGS = -L./libs
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-PROJECT_CFLAGS = -I/home/wezside/Packages/LeapDeveloperKit/LeapSDK/include
+PROJECT_CFLAGS = -I../../../packages/LeapDeveloperKit/LeapSDK/include
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS
