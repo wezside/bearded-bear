@@ -53,20 +53,22 @@ void testApp::update()
 
 	ofVec3f origin = ofVec3f(0.0);
 	ofVec3f distance = origin - listener.hand_pos;
+
 	// Distance will be zero when a hand is not tracked 
 	if (distance.length() == 0)
 	{		
 		status.r = 132;
 		status.g = 132;
 		status.b = 132;
-		if (static_cast<int>(control.roll.x) > 90.0f) control.roll.x -= 1;
-		else if (static_cast<int>(control.roll.x) < 90.0f) control.roll.x += 1;
+
+		if (static_cast<int>(control.roll.x) > 90) control.roll.x -= 1.0f;
+		else if (static_cast<int>(control.roll.x) < 45) control.roll.x += 1.0f;
 		else control.roll.x = 90.0f;
-		
-		// if (static_cast<int>(control.roll.z) > 0.0f) control.roll.z -= 1;
-		if (static_cast<int>(control.roll.z) < 0.0f) control.roll.z += 1;
+
+		if (static_cast<int>(control.roll.z) > 90) control.roll.z -= 1.0f;
+		if (static_cast<int>(control.roll.z) < 0) control.roll.z += 1.0f;
 		else control.roll.z = 0.0f;
-		hand_pos_str = "Not tracking";	
+		hand_pos_str = "Not tracking";			
 	}	
 	else
 	{
@@ -74,8 +76,12 @@ void testApp::update()
 		status.g = 58;
 		status.b = 135;
 		hand_pos_str = "Tracking";
-		control.roll.x = listener.hand_pitch * RAD_TO_DEG * -1 + 90.0;
-		control.roll.z = listener.hand_roll * RAD_TO_DEG * -1;
+
+		if (throttle > 30)
+		{
+			control.roll.x = ofClamp(listener.hand_pitch * RAD_TO_DEG * -1 + 90.0, -30.0f + 90.0f, 30.0f + 90.0f);
+			control.roll.z = ofClamp(listener.hand_roll * RAD_TO_DEG * -1, -30.0f, 30.0f);
+		}
 	}
 	if (ofGetFrameNum() % 2 == 0) serial.writeByte(throttle);
 }
