@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "Leap.h"
-#include "spinner.hpp"
+#include "control.hpp"
 
 using namespace Leap;
 
@@ -26,13 +26,19 @@ class testApp : public ofBaseApp
 	private:
 		Controller controller;
 		LeapListener listener;
+		
 		ofCamera camera;
 		ofImage logo;
 		ofShader shader;
-		ofTrueTypeFont unibody;
+		ofTrueTypeFont unibody, unibodyLarge;
+		ofSerial serial;
+		ofColor status;
 
 		float rotate_x;
 		float rotate_z;
+		unsigned char throttle;
+		bool serialInit;
+		std::string hand_pos_str;
 
 	public:
 		void exit();
@@ -50,5 +56,6 @@ class testApp : public ofBaseApp
 		void gotMessage(ofMessage msg);
 		void drawThrottle(int index = -1);
 
-		float hand_pitch, hand_roll, hand_yaw;
+		wezside::Control control;
+		float hand_pitch, hand_roll, hand_yaw, newheight;
 };
