@@ -86,7 +86,7 @@ namespace wezside
 			void drawPitch() {}
 			void drawThrottle(int index = -1) 
 			{
-				int max = index == -1 ? 30 : index;
+				int max = index == -1 ? 30 : ofMap(index, 0, 100, 0, 30);
 				if (max > 30) max = 30;
 				ofFill();
 				float yoffset = 230;	
@@ -108,15 +108,20 @@ namespace wezside
 
 				ofPushMatrix();
 				ofScale(1, -1, 1);
-				ofSetColor(24);
-				int val = (int)throttle / 2;
+				ofSetColor(122);
+				int val = (int)throttle;
 				if (val < 0) val = 0;
 				if (val > 100) val = 100;
 				ofRectangle throttle_rect = unibodyLarge.getStringBoundingBox(ofToString(val), 0, 0);
 				unibodyLarge.drawString(ofToString((int)throttle), -ofGetWidth() * 0.5 + 60, -ofGetHeight() * 0.5 + 50);	
 				ofPopMatrix();
 			}
-			void setThrottle(int t) {throttle = t;}
+			void setThrottle(int t) 
+			{
+				if (t <= 0) throttle = 0;
+				else if (t <= 100) throttle = t;
+				else throttle = 100;
+			}
 
 			void setRollFont(ofTrueTypeFont& fm) {unibody = fm;}
 			void setThrottleFont(ofTrueTypeFont& fm) {unibodyLarge = fm;}

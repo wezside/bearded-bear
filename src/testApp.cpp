@@ -23,14 +23,17 @@ void testApp::setup()
  	control.setThrottleFont(unibodyLarge);
 
  	// Initialize serial comms
- 	serialInit = serial.setup("/dev/ttyACM0", 9600); //open the first device
+ 	if (!serial.setup("/dev/ttyACM0", 115200))
+ 	{
+ 		ofLog(OF_LOG_NOTICE, "%s", "Couldn't initialise Serial"); 		
+ 	}
 
 	controller.addListener(listener);
 	if(ofIsGLProgrammableRenderer()) shader.load("leap");
 }
 void testApp::update()
 {
-	if (listener.hand_pos.y > 0) throttle = ofMap(listener.hand_pos.y, 30, 400, 0, 100);
+	if (listener.hand_pos.y > 0) throttle = ofMap(listener.hand_pos.y, 50, 300, 0, 100, true);
 	else if (throttle > 0)
 	{
 		throttle -= 0.5;
@@ -38,11 +41,11 @@ void testApp::update()
 	else throttle = 0;
 
 	// The height from Leap mapped to value usable on screen
-	if (listener.hand_pos.y > 0.0f) newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 250.0);
+	if (listener.hand_pos.y > 0.0f) newheight = ofMap(listener.hand_pos.y, 30.0, 300.0, 0.0, 250.0, true);
 	else if (listener.hand_pos.y == 0.0f && newheight > 0.0f) newheight -= 1;
 	else newheight = 0.0f;
 
-	control.setThrottle((int)throttle / 3);
+	control.setThrottle((int)throttle);
 
 	status.r = 227;
 	status.g = 7;
@@ -74,22 +77,7 @@ void testApp::update()
 		control.roll.x = listener.hand_pitch * RAD_TO_DEG * -1 + 90.0;
 		control.roll.z = listener.hand_roll * RAD_TO_DEG * -1;
 	}
-	ofLog(OF_LOG_NOTICE, "%d", throttle);
-	serial.writeByte(throttle);
-	serial.writeByte('\n');
-	/*string throttle_str = static_cast<ostringstream*>( &(ostringstream() << throttle))->str();
-	throttle_str = throttle_str + '\n';
-	const unsigned char* c = reinterpret_cast<unsigned const char*>(throttle_str.c_str());
-	printf("%s", c);
-	serial.writeBytes((unsigned char*)c, throttle_str.size());*/
-	// serial.drain();
-	// serial.writeByte(*c);
-	// if (ofGetFrameNum() % 2 == 0 && serialInit)
-	// {
-	// ofLog(OF_LOG_NOTICE, "%s [%d]", c, throttle_str.size());
-	// serial.drain();
-	// serial.writeBytes((unsigned char*)c, throttle_str.size());
-	// }
+	if (ofGetFrameNum() % 2 == 0) serial.writeByte(throttle);
 }
 void testApp::draw()
 {
@@ -119,8 +107,6 @@ void testApp::draw()
 	ofScale(1, -1, 1);
 	unibody.drawString(hand_pos_str, -player_rect.width * 0.5, ofGetHeight() * 0.5 - unibody.getLineHeight() * 2 - 40);	
 	ofPopMatrix();
-
-
 
 	// Draw the craft
 	ofSetColor(241, 113, 154, 100);
@@ -159,7 +145,8 @@ void testApp::keyReleased(int key)
 	{
 		case 'F':
 		case 'f': ofToggleFullscreen(); break;
-		case '+': if (serialInit) serial.writeByte(throttle);
+		case '+': serial.writeByte(throttle++); break;
+		case '-': serial.writeByte(throttle--); break;
 	}
 }
 void testApp::mouseMoved(int x, int y ){}
